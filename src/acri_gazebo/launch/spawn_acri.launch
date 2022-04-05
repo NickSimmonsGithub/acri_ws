@@ -1,0 +1,12 @@
+<launch>
+    <include file="$(find acri_gazebo)/launch/spawn_sdf.launch">
+        <arg name="robot_name" value="acri_model" />
+        <arg name="x" value="2" />
+        <arg name="y" value="2" />
+        <arg name="z" value="0" />
+        <arg name="roll" value="0" />
+        <arg name="pitch" value="0" />
+        <arg name="yaw" value="0" />
+        <arg name="sdf_robot_file" value="$(find acri_description)/sdf/acri_model/model.sdf" />
+    </include>
+</launch>
