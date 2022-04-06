@@ -1,0 +1,3 @@
+<launch>
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-file $(find acri_description)/urdf/acri_model.urdf -urdf -x 3 -y 3 -z 1 -model acri_model" />
+</launch>

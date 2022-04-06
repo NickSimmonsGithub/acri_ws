@@ -1,6 +1,7 @@
 <?xml version='1.0'?>
 <sdf version='1.7'>
   <model name='acri_model'>
+  
     <pose>0 0 0 0 0 0</pose>
     <link name='base_link'>
       <pose>0 0 0.45 0 -0 0</pose>
@@ -1180,6 +1181,545 @@
         </surface>
       </collision>
     </link>
+    <link name='camera_assembly'>
+      <pose>0 0 0.45 0 0 0</pose>
+      <inertial>
+        <pose>-0.017639 -0.030811 0.078702 0 -0 0</pose>
+        <mass>0.288</mass>
+        <inertia>
+          <ixx>0.0518958</ixx>
+          <ixy>-0.00451137</ixy>
+          <ixz>0.00285947</ixz>
+          <iyy>0.166826</iyy>
+          <iyz>0.000422491</iyz>
+          <izz>0.21661</izz>
+        </inertia>
+      </inertial>
+      <collision name='camera_assembly_fixed_joint_lump__camera_front_link_collision'>
+        <pose>1.03336 0 0.059493 0 0.2497 0</pose>
+        <geometry>
+          <box>
+            <size>0.02505 0.09 0.025</size>
+          </box>
+        </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <kp>1e+13</kp>
+              <kd>1</kd>
+            </ode>
+          </contact>
+          <friction>
+            <ode>
+              <mu2>1</mu2>
+              <fdir1>0 0 0</fdir1>
+            </ode>
+            <torsional>
+              <ode/>
+            </torsional>
+          </friction>
+          <bounce/>
+        </surface>
+        <max_contacts>10</max_contacts>
+      </collision>
+      <collision name='camera_assembly_fixed_joint_lump__camera_left_link_collision_1'>
+        <pose>-0.036098 0.511751 0.075605 0.0119 0.2487 1.5743</pose>
+        <geometry>
+          <box>
+            <size>0.02505 0.09 0.025</size>
+          </box>
+        </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <kp>1e+13</kp>
+              <kd>1</kd>
+            </ode>
+          </contact>
+          <friction>
+            <ode>
+              <mu2>1</mu2>
+              <fdir1>0 0 0</fdir1>
+            </ode>
+            <torsional>
+              <ode/>
+            </torsional>
+          </friction>
+          <bounce/>
+        </surface>
+        <max_contacts>10</max_contacts>
+      </collision>
+      <collision name='camera_assembly_fixed_joint_lump__camera_rear_link_collision_2'>
+        <pose>-1.0606 -0.056679 0.097113 0.0149 0.2024 3.1389</pose>
+        <geometry>
+          <box>
+            <size>0.02505 0.09 0.025</size>
+          </box>
+        </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <kp>1e+13</kp>
+              <kd>1</kd>
+            </ode>
+          </contact>
+          <friction>
+            <ode>
+              <mu2>1</mu2>
+              <fdir1>0 0 0</fdir1>
+            </ode>
+            <torsional>
+              <ode/>
+            </torsional>
+          </friction>
+          <bounce/>
+        </surface>
+        <max_contacts>10</max_contacts>
+      </collision>
+      <collision name='camera_assembly_fixed_joint_lump__camera_right_link_collision_3'>
+        <pose>-0.007119 -0.578757 0.082032 0.0063 0.2392 -1.5437</pose>
+        <geometry>
+          <box>
+            <size>0.02505 0.09 0.025</size>
+          </box>
+        </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <kp>1e+13</kp>
+              <kd>1</kd>
+            </ode>
+          </contact>
+          <friction>
+            <ode>
+              <mu2>1</mu2>
+              <fdir1>0 0 0</fdir1>
+            </ode>
+            <torsional>
+              <ode/>
+            </torsional>
+          </friction>
+          <bounce/>
+        </surface>
+        <max_contacts>10</max_contacts>
+      </collision>
+      <visual name='camera_assembly_fixed_joint_lump__camera_front_link_visual'>
+        <pose>1.03753 0 0.05843 1.8205 -0 1.5708</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>/home/nick/acri_ws/src/realsense-ros/realsense2_description/meshes/d435.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <visual name='camera_assembly_fixed_joint_lump__camera_left_link_visual_1'>
+        <pose>-0.036113 0.515919 0.074547 1.81951 -0.011534 -3.14102</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>/home/nick/acri_ws/src/realsense-ros/realsense2_description/meshes/d435.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <visual name='camera_assembly_fixed_joint_lump__camera_rear_link_visual_2'>
+        <pose>-1.06481 -0.056668 0.096248 1.77322 -0.014596 -1.57648</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>/home/nick/acri_ws/src/realsense-ros/realsense2_description/meshes/d435.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <visual name='camera_assembly_fixed_joint_lump__camera_right_link_visual_3'>
+        <pose>-0.007006 -0.582933 0.081014 1.81 -0.006121 0.025604</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>/home/nick/acri_ws/src/realsense-ros/realsense2_description/meshes/d435.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <self_collide>0</self_collide>
+      <enable_wind>0</enable_wind>
+      <kinematic>0</kinematic>
+      <gravity>1</gravity>
+      <sensor name='camera_frontcolor' type='camera'>
+        <camera name='camera_front'>
+          <horizontal_fov>1.21126</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>RGB_INT8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+        <always_on>1</always_on>
+        <update_rate>30</update_rate>
+        <visualize>1</visualize>
+        <pose>1.03336 0.0175 0.059493 0 0.2497 0</pose>
+      </sensor>
+      <sensor name='camera_frontired1' type='camera'>
+        <camera name='camera_front'>
+          <horizontal_fov>1.48702</horizontal_fov>
+          <image>
+            <width>1280</width>
+            <height>720</height>
+            <format>L_INT8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.05</stddev>
+          </noise>
+        </camera>
+        <always_on>1</always_on>
+        <update_rate>90</update_rate>
+        <visualize>0</visualize>
+        <pose>1.03336 0.0175 0.059493 0 0.2497 0</pose>
+      </sensor>
+      <sensor name='camera_frontired2' type='camera'>
+        <camera name='camera_front'>
+          <horizontal_fov>1.48702</horizontal_fov>
+          <image>
+            <width>1280</width>
+            <height>720</height>
+            <format>L_INT8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.05</stddev>
+          </noise>
+        </camera>
+        <always_on>1</always_on>
+        <update_rate>90</update_rate>
+        <visualize>0</visualize>
+        <pose>1.03336 0.0175 0.059493 0 0.2497 0</pose>
+      </sensor>
+      <sensor name='camera_frontdepth' type='depth'>
+        <camera name='camera_front'>
+          <horizontal_fov>1.48702</horizontal_fov>
+          <image>
+            <width>1280</width>
+            <height>720</height>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.1</stddev>
+          </noise>
+        </camera>
+        <always_on>1</always_on>
+        <update_rate>90</update_rate>
+        <visualize>0</visualize>
+        <pose>1.03336 0.0175 0.059493 0 0.2497 0</pose>
+      </sensor>
+      <self_collide>0</self_collide>
+      <enable_wind>0</enable_wind>
+      <kinematic>0</kinematic>
+      <gravity>1</gravity>
+      <sensor name='camera_leftcolor' type='camera'>
+        <camera name='camera_left'>
+          <horizontal_fov>1.21126</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>RGB_INT8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+        <always_on>1</always_on>
+        <update_rate>30</update_rate>
+        <visualize>1</visualize>
+        <pose>-0.053597 0.511741 0.075807 0.0119 0.2487 1.5743</pose>
+      </sensor>
+      <sensor name='camera_leftired1' type='camera'>
+        <camera name='camera_left'>
+          <horizontal_fov>1.48702</horizontal_fov>
+          <image>
+            <width>1280</width>
+            <height>720</height>
+            <format>L_INT8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.05</stddev>
+          </noise>
+        </camera>
+        <always_on>1</always_on>
+        <update_rate>90</update_rate>
+        <visualize>0</visualize>
+        <pose>-0.053597 0.511741 0.075807 0.0119 0.2487 1.5743</pose>
+      </sensor>
+      <sensor name='camera_leftired2' type='camera'>
+        <camera name='camera_left'>
+          <horizontal_fov>1.48702</horizontal_fov>
+          <image>
+            <width>1280</width>
+            <height>720</height>
+            <format>L_INT8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.05</stddev>
+          </noise>
+        </camera>
+        <always_on>1</always_on>
+        <update_rate>90</update_rate>
+        <visualize>0</visualize>
+        <pose>-0.053597 0.511741 0.075807 0.0119 0.2487 1.5743</pose>
+      </sensor>
+      <sensor name='camera_leftdepth' type='depth'>
+        <camera name='camera_left'>
+          <horizontal_fov>1.48702</horizontal_fov>
+          <image>
+            <width>1280</width>
+            <height>720</height>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.1</stddev>
+          </noise>
+        </camera>
+        <always_on>1</always_on>
+        <update_rate>90</update_rate>
+        <visualize>0</visualize>
+        <pose>-0.053597 0.511741 0.075807 0.0119 0.2487 1.5743</pose>
+      </sensor>
+      <self_collide>0</self_collide>
+      <enable_wind>0</enable_wind>
+      <kinematic>0</kinematic>
+      <gravity>1</gravity>
+      <sensor name='camera_rearcolor' type='camera'>
+        <camera name='camera_rear'>
+          <horizontal_fov>1.21126</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>RGB_INT8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+        <always_on>1</always_on>
+        <update_rate>30</update_rate>
+        <visualize>1</visualize>
+        <pose>-1.0607 -0.074177 0.097368 0.0149 0.2024 3.1389</pose>
+      </sensor>
+      <sensor name='camera_rearired1' type='camera'>
+        <camera name='camera_rear'>
+          <horizontal_fov>1.48702</horizontal_fov>
+          <image>
+            <width>1280</width>
+            <height>720</height>
+            <format>L_INT8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.05</stddev>
+          </noise>
+        </camera>
+        <always_on>1</always_on>
+        <update_rate>90</update_rate>
+        <visualize>0</visualize>
+        <pose>-1.0607 -0.074177 0.097368 0.0149 0.2024 3.1389</pose>
+      </sensor>
+      <sensor name='camera_rearired2' type='camera'>
+        <camera name='camera_rear'>
+          <horizontal_fov>1.48702</horizontal_fov>
+          <image>
+            <width>1280</width>
+            <height>720</height>
+            <format>L_INT8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.05</stddev>
+          </noise>
+        </camera>
+        <always_on>1</always_on>
+        <update_rate>90</update_rate>
+        <visualize>0</visualize>
+        <pose>-1.0607 -0.074177 0.097368 0.0149 0.2024 3.1389</pose>
+      </sensor>
+      <sensor name='camera_reardepth' type='depth'>
+        <camera name='camera_rear'>
+          <horizontal_fov>1.48702</horizontal_fov>
+          <image>
+            <width>1280</width>
+            <height>720</height>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.1</stddev>
+          </noise>
+        </camera>
+        <always_on>1</always_on>
+        <update_rate>90</update_rate>
+        <visualize>0</visualize>
+        <pose>-1.0607 -0.074177 0.097368 0.0149 0.2024 3.1389</pose>
+      </sensor>
+      <self_collide>0</self_collide>
+      <enable_wind>0</enable_wind>
+      <kinematic>0</kinematic>
+      <gravity>1</gravity>
+      <sensor name='camera_rightcolor' type='camera'>
+        <camera name='camera_right'>
+          <horizontal_fov>1.21126</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>RGB_INT8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+        <always_on>1</always_on>
+        <update_rate>30</update_rate>
+        <visualize>1</visualize>
+        <pose>0.010375 -0.578309 0.08214 0.0063 0.2392 -1.5437</pose>
+      </sensor>
+      <sensor name='camera_rightired1' type='camera'>
+        <camera name='camera_right'>
+          <horizontal_fov>1.48702</horizontal_fov>
+          <image>
+            <width>1280</width>
+            <height>720</height>
+            <format>L_INT8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.05</stddev>
+          </noise>
+        </camera>
+        <always_on>1</always_on>
+        <update_rate>90</update_rate>
+        <visualize>0</visualize>
+        <pose>0.010375 -0.578309 0.08214 0.0063 0.2392 -1.5437</pose>
+      </sensor>
+      <sensor name='camera_rightired2' type='camera'>
+        <camera name='camera_right'>
+          <horizontal_fov>1.48702</horizontal_fov>
+          <image>
+            <width>1280</width>
+            <height>720</height>
+            <format>L_INT8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.05</stddev>
+          </noise>
+        </camera>
+        <always_on>1</always_on>
+        <update_rate>90</update_rate>
+        <visualize>0</visualize>
+        <pose>0.010375 -0.578309 0.08214 0.0063 0.2392 -1.5437</pose>
+      </sensor>
+      <sensor name='camera_rightdepth' type='depth'>
+        <camera name='camera_right'>
+          <horizontal_fov>1.48702</horizontal_fov>
+          <image>
+            <width>1280</width>
+            <height>720</height>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.1</stddev>
+          </noise>
+        </camera>
+        <always_on>1</always_on>
+        <update_rate>90</update_rate>
+        <visualize>0</visualize>
+        <pose>0.010375 -0.578309 0.08214 0.0063 0.2392 -1.5437</pose>
+      </sensor>
+    </link>
     <joint name='left_track_j' type='fixed'>
       <parent>base_link</parent>
       <child>left_track</child>
@@ -1214,6 +1754,23 @@
         </ode>
       </physics>
     </joint>
+    <joint name='attach_cameras' type='fixed'>
+      <parent>base_link</parent>
+      <child>camera_assembly</child>
+      <pose>0 0 0 0 0 0</pose>
+      <physics>
+        <ode>
+          <limit>
+            <cfm>0</cfm>
+            <erp>0.2</erp>
+          </limit>
+          <suspension>
+            <cfm>0</cfm>
+            <erp>0.2</erp>
+          </suspension>
+        </ode>
+      </physics>
+    </joint>
     <static>0</static>
     <allow_auto_disable>1</allow_auto_disable>
     <plugin name='simple_tracked_vehicle_ROS' filename='libSimpleTrackedVehiclePluginROS.so'>
@@ -1222,6 +1779,107 @@
       <right_track>right_track</right_track>
       <track_mu>2</track_mu>
       <track_mu2>0.5</track_mu2>
+    </plugin>
+    <plugin name='/acri_sim/camera_front' filename='librealsense_gazebo_plugin.so'>
+      <prefix>camera_front</prefix>
+      <depthUpdateRate>30.0</depthUpdateRate>
+      <colorUpdateRate>30.0</colorUpdateRate>
+      <infraredUpdateRate>30.0</infraredUpdateRate>
+      <depthTopicName>depth/image_raw</depthTopicName>
+      <depthCameraInfoTopicName>depth/camera_info</depthCameraInfoTopicName>
+      <colorTopicName>color/image_raw</colorTopicName>
+      <colorCameraInfoTopicName>color/camera_info</colorCameraInfoTopicName>
+      <infrared1TopicName>infra1/image_raw</infrared1TopicName>
+      <infrared1CameraInfoTopicName>infra1/camera_info</infrared1CameraInfoTopicName>
+      <infrared2TopicName>infra2/image_raw</infrared2TopicName>
+      <infrared2CameraInfoTopicName>infra2/camera_info</infrared2CameraInfoTopicName>
+      <colorOpticalframeName>camera_front_color_optical_frame</colorOpticalframeName>
+      <depthOpticalframeName>camera_front_depth_optical_frame</depthOpticalframeName>
+      <infrared1OpticalframeName>camera_front_left_ir_optical_frame</infrared1OpticalframeName>
+      <infrared2OpticalframeName>camera_front_right_ir_optical_frame</infrared2OpticalframeName>
+      <rangeMinDepth>0.2</rangeMinDepth>
+      <rangeMaxDepth>10.0</rangeMaxDepth>
+      <pointCloud>1</pointCloud>
+      <pointCloudTopicName>depth/color/points</pointCloudTopicName>
+      <pointCloudCutoff>0.25</pointCloudCutoff>
+      <pointCloudCutoffMax>9.0</pointCloudCutoffMax>
+      <robotNamespace>/</robotNamespace>
+    </plugin>
+    <plugin name='/acri_sim/camera_rear' filename='librealsense_gazebo_plugin.so'>
+      <prefix>camera_rear</prefix>
+      <depthUpdateRate>30.0</depthUpdateRate>
+      <colorUpdateRate>30.0</colorUpdateRate>
+      <infraredUpdateRate>30.0</infraredUpdateRate>
+      <depthTopicName>depth/image_raw</depthTopicName>
+      <depthCameraInfoTopicName>depth/camera_info</depthCameraInfoTopicName>
+      <colorTopicName>color/image_raw</colorTopicName>
+      <colorCameraInfoTopicName>color/camera_info</colorCameraInfoTopicName>
+      <infrared1TopicName>infra1/image_raw</infrared1TopicName>
+      <infrared1CameraInfoTopicName>infra1/camera_info</infrared1CameraInfoTopicName>
+      <infrared2TopicName>infra2/image_raw</infrared2TopicName>
+      <infrared2CameraInfoTopicName>infra2/camera_info</infrared2CameraInfoTopicName>
+      <colorOpticalframeName>camera_rear_color_optical_frame</colorOpticalframeName>
+      <depthOpticalframeName>camera_rear_depth_optical_frame</depthOpticalframeName>
+      <infrared1OpticalframeName>camera_rear_left_ir_optical_frame</infrared1OpticalframeName>
+      <infrared2OpticalframeName>camera_rear_right_ir_optical_frame</infrared2OpticalframeName>
+      <rangeMinDepth>0.2</rangeMinDepth>
+      <rangeMaxDepth>10.0</rangeMaxDepth>
+      <pointCloud>1</pointCloud>
+      <pointCloudTopicName>depth/color/points</pointCloudTopicName>
+      <pointCloudCutoff>0.25</pointCloudCutoff>
+      <pointCloudCutoffMax>9.0</pointCloudCutoffMax>
+      <robotNamespace>/</robotNamespace>
+    </plugin>
+    <plugin name='/acri_sim/camera_left' filename='librealsense_gazebo_plugin.so'>
+      <prefix>camera_left</prefix>
+      <depthUpdateRate>30.0</depthUpdateRate>
+      <colorUpdateRate>30.0</colorUpdateRate>
+      <infraredUpdateRate>30.0</infraredUpdateRate>
+      <depthTopicName>depth/image_raw</depthTopicName>
+      <depthCameraInfoTopicName>depth/camera_info</depthCameraInfoTopicName>
+      <colorTopicName>color/image_raw</colorTopicName>
+      <colorCameraInfoTopicName>color/camera_info</colorCameraInfoTopicName>
+      <infrared1TopicName>infra1/image_raw</infrared1TopicName>
+      <infrared1CameraInfoTopicName>infra1/camera_info</infrared1CameraInfoTopicName>
+      <infrared2TopicName>infra2/image_raw</infrared2TopicName>
+      <infrared2CameraInfoTopicName>infra2/camera_info</infrared2CameraInfoTopicName>
+      <colorOpticalframeName>camera_left_color_optical_frame</colorOpticalframeName>
+      <depthOpticalframeName>camera_left_depth_optical_frame</depthOpticalframeName>
+      <infrared1OpticalframeName>camera_left_left_ir_optical_frame</infrared1OpticalframeName>
+      <infrared2OpticalframeName>camera_left_right_ir_optical_frame</infrared2OpticalframeName>
+      <rangeMinDepth>0.2</rangeMinDepth>
+      <rangeMaxDepth>10.0</rangeMaxDepth>
+      <pointCloud>1</pointCloud>
+      <pointCloudTopicName>depth/color/points</pointCloudTopicName>
+      <pointCloudCutoff>0.25</pointCloudCutoff>
+      <pointCloudCutoffMax>9.0</pointCloudCutoffMax>
+      <robotNamespace>/</robotNamespace>
+    </plugin>
+    <static>0</static>
+    <plugin name='/acri_sim/camera_right' filename='librealsense_gazebo_plugin.so'>
+      <prefix>camera_right</prefix>
+      <depthUpdateRate>30.0</depthUpdateRate>
+      <colorUpdateRate>30.0</colorUpdateRate>
+      <infraredUpdateRate>30.0</infraredUpdateRate>
+      <depthTopicName>depth/image_raw</depthTopicName>
+      <depthCameraInfoTopicName>depth/camera_info</depthCameraInfoTopicName>
+      <colorTopicName>color/image_raw</colorTopicName>
+      <colorCameraInfoTopicName>color/camera_info</colorCameraInfoTopicName>
+      <infrared1TopicName>infra1/image_raw</infrared1TopicName>
+      <infrared1CameraInfoTopicName>infra1/camera_info</infrared1CameraInfoTopicName>
+      <infrared2TopicName>infra2/image_raw</infrared2TopicName>
+      <infrared2CameraInfoTopicName>infra2/camera_info</infrared2CameraInfoTopicName>
+      <colorOpticalframeName>camera_right_color_optical_frame</colorOpticalframeName>
+      <depthOpticalframeName>camera_right_depth_optical_frame</depthOpticalframeName>
+      <infrared1OpticalframeName>camera_right_left_ir_optical_frame</infrared1OpticalframeName>
+      <infrared2OpticalframeName>camera_right_right_ir_optical_frame</infrared2OpticalframeName>
+      <rangeMinDepth>0.2</rangeMinDepth>
+      <rangeMaxDepth>10.0</rangeMaxDepth>
+      <pointCloud>1</pointCloud>
+      <pointCloudTopicName>depth/color/points</pointCloudTopicName>
+      <pointCloudCutoff>0.25</pointCloudCutoff>
+      <pointCloudCutoffMax>9.0</pointCloudCutoffMax>
+      <robotNamespace>/</robotNamespace>
     </plugin>
   </model> 
 </sdf>

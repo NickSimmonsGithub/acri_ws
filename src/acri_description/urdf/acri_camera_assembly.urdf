@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<robot name="acri_camera_assembly" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:arg name="use_nominal_extrinsics" default="false"/>
+  <xacro:include filename="$(find realsense2_description)/urdf/_d435.urdf.xacro" />
+
+  <link name="base_link" />
+  <xacro:sensor_d435 parent="base_link" name="camera_front" topics_ns="/acri_sim/camera_front" use_nominal_extrinsics="$(arg use_nominal_extrinsics)">
+    <origin xyz="1.02 0 0.05" rpy="0 0.2497 0"/>
+  </xacro:sensor_d435>
+
+  <xacro:sensor_d435 parent="base_link" name="camera_rear" topics_ns="/acri_sim/camera_rear" use_nominal_extrinsics="$(arg use_nominal_extrinsics)">
+    <origin xyz="-1.0477 -0.0569 0.0870" rpy="0.0149 0.2024 3.1389"/>
+  </xacro:sensor_d435>
+
+  <xacro:sensor_d435 parent="base_link" name="camera_left" topics_ns="/acri_sim/camera_left" use_nominal_extrinsics="$(arg use_nominal_extrinsics)">
+    <origin xyz="-0.0362 0.4984 0.0661" rpy="0.0119 0.2487 1.5743"/>
+  </xacro:sensor_d435>
+
+  <xacro:sensor_d435 parent="base_link" name="camera_right" topics_ns="/acri_sim/camera_right" use_nominal_extrinsics="$(arg use_nominal_extrinsics)">
+    <origin xyz="-0.0074 -0.5655 0.0724" rpy="0.0063 0.2392 -1.5437"/>  
+  </xacro:sensor_d435>
+</robot>

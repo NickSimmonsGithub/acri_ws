@@ -1,0 +1,168 @@
+<robot name="acri_model" xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <link name="base_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="1.5708 0 0" />
+            <mass value="13.14" />
+            <inertia ixx="0.10019" ixy="0.0" ixz="0.0" iyy="0.345043" iyz="0.0" izz="0.302044" />
+        </inertial>
+        <visual name='base_link_visual'>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <box size="1.9 0.95 0.5" />
+            </geometry>
+        </visual>
+        <collision name='base_link_collision'>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <box size="1.9 0.95 0.5" />
+            </geometry>
+        </collision>
+    </link>
+    <link name='left_track'>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="6.06" />
+            <inertia ixx="0.002731" ixy="0.0" ixz="0.0" iyy="0.032554" iyz="1.5e-05" izz="0.031391" />
+        </inertial>
+        <!--
+        <visual name='left_track_visual_0'>
+            <origin xyz="0 0 0" rpy="1.5708 -0 1.5708" />
+            <geometry>
+                <box>
+                  <size>0.18 0.243 1.32407</size>
+                </box>
+              </geometry>
+        </visual>
+        <visual name='left_track_visual_1'>
+            <origin xyz="0.662037 0 0" rpy="1.5708 -0 0" />
+            <geometry>
+                <cylinder>
+                  <length>0.18</length>
+                  <radius>0.1215</radius>
+                </cylinder>
+            </geometry>
+        </visual>
+        <visual name='left_track_visual_2'>
+            <origin xyz="-0.662037 0 0" rpy="1.5708 -0 0" />
+            <geometry>
+                <cylinder>
+                  <length>0.18</length>
+                  <radius>0.1215</radius>
+                </cylinder>
+            </geometry>
+        </visual>
+        <visual name='left_track_visual_3'>
+            <origin xyz="-0.945 0 0.1885" rpy="1.5708 -0 0" />
+            <geometry>
+                <cylinder>
+                  <length>0.18</length>
+                  <radius>0.139</radius>
+                </cylinder>
+              </geometry>
+        </visual>
+        <visual name='left_track_visual_4'>
+            <origin xyz="0.945 0 0.1885" rpy="1.5708 -0 0" />
+            <geometry>
+                <cylinder>
+                  <length>0.18</length>
+                  <radius>0.139</radius>
+                </cylinder>
+              </geometry>
+        </visual>
+        <visual name='left_track_visual_5'>
+            <origin xyz="-0.839022 0 0.034503" rpy="1.5708 0.536163 0" />
+            <geometry>
+                <box>
+                  <size>0.339549 0.1215 0.18</size>
+                </box>
+              </geometry>
+        </visual>
+        <visual name='left_track_visual_6'>
+            <origin xyz="0.839022 0 0.034503" rpy="1.5708 -0.536163 0" />
+            <geometry>
+                <box>
+                  <size>0.339549 0.1215 0.18</size>
+                </box>
+              </geometry>
+        </visual>
+        <visual name='left_track_visual_7'>
+            <origin xyz="0 0 0.1885" rpy="1.5708 -0 0" />
+            <geometry>
+                <box>
+                    <size>1.89 0.278 0.18</size>
+                </box>
+              </geometry>
+        </visual>
+    -->
+        <visual name='left_track_visual'>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://acri_description/meshes/Rigid Treads v1.stl" />
+            </geometry>
+        </visual>
+        <collision name='left_track_collision'>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://acri_description/meshes/Rigid Treads v1.stl" />
+            </geometry>
+        </collision>
+    </link>
+
+    <gazebo reference="left_track">
+        <mu>0.7</mu>
+        <mu2>150</mu2>
+        <fdir1>0 1 0</fdir1>
+        <selfCollide>false</selfCollide>
+    </gazebo>
+
+    <joint name="left_track_j" type="fixed">
+        <parent link="base_link" />
+        <child link="left_track" />
+        <origin xyz="0 0.585 -0.2255" rpy="0 0 1.5708" />
+    </joint>
+    <link name='right_track'>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="6.06" />
+            <inertia ixx="0.002731" ixy="0.0" ixz="0.0" iyy="0.032554" iyz="1.5e-05" izz="0.031391" />
+        </inertial>
+        <visual name='right_track_visual'>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://acri_description/meshes/Rigid Treads v1.stl" />
+            </geometry>
+        </visual>
+        <collision name='right_track_collision'>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://acri_description/meshes/Rigid Treads v1.stl" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="right_track_j" type="fixed">
+        <parent link="base_link" />
+        <child link="right_track" />
+        <origin xyz="0 -0.585 -0.2255" rpy="0 0 1.5708" />
+    </joint>
+    <gazebo reference="right_track">
+        <mu>0.7</mu>
+        <mu2>150</mu2>
+        <fdir1>0 1 0</fdir1>
+        <selfCollide>false</selfCollide>
+    </gazebo>
+    <gazebo reference="left_track_j">
+        <preserveFixedJoint>true</preserveFixedJoint>
+    </gazebo>
+    <gazebo reference="right_track_j">
+        <preserveFixedJoint>true</preserveFixedJoint>
+    </gazebo>
+    <gazebo>
+        <plugin name='simple_tracked_vehicle_ROS' filename='libSimpleTrackedVehiclePluginROS.so'>
+            <body>base_link</body>
+            <left_track>left_track</left_track>
+            <right_track>right_track</right_track>
+            <track_mu>2</track_mu>
+            <track_mu2>0.5</track_mu2>
+        </plugin>
+    </gazebo>
+</robot>

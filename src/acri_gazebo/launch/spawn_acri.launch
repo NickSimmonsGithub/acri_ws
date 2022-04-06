@@ -9,4 +9,5 @@
         <arg name="yaw" value="0" />
         <arg name="sdf_robot_file" value="$(find acri_description)/sdf/acri_model/model.sdf" />
     </include>
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
 </launch>

@@ -1,0 +1,4 @@
+<launch>
+    <arg name="model" default="$(find acri_description)/urdf/acri_camera_assembly.urdf.xacro"/>
+    <param name="robot_description" command="$(find xacro)/xacro $(arg model) use_nominal_extrinsics:=true publish_pointcloud:=true add_plug:=$(arg add_plug) name:=$(arg name) topics_ns:=$(arg topics_ns)" />
+</launch>
