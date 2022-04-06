@@ -1,3 +1,5 @@
+# DO NOT DOWNLOAD THIS REPOSITORY YET. UPDATING THE INSTALLATION INSTRUCTIONS.
+
 # ACRI Trackside Robotic Device Simulation Environment
 This repository contains all packages required to run the ACRI Trackside Robotic Device gazebo simulation. 
 The simulation requires ROS noetic and Ubuntu 20.04.
