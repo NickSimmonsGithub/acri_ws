@@ -1308,7 +1308,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/nick/acri_ws/src/realsense-ros/realsense2_description/meshes/d435.dae</uri>
+            <uri>~/acri_ws/src/realsense-ros/realsense2_description/meshes/d435.dae</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1317,7 +1317,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/nick/acri_ws/src/realsense-ros/realsense2_description/meshes/d435.dae</uri>
+            <uri>~/acri_ws/src/realsense-ros/realsense2_description/meshes/d435.dae</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1326,7 +1326,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/nick/acri_ws/src/realsense-ros/realsense2_description/meshes/d435.dae</uri>
+            <uri>~/acri_ws/src/realsense-ros/realsense2_description/meshes/d435.dae</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1335,7 +1335,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/nick/acri_ws/src/realsense-ros/realsense2_description/meshes/d435.dae</uri>
+            <uri>~/acri_ws/src/realsense-ros/realsense2_description/meshes/d435.dae</uri>
           </mesh>
         </geometry>
       </visual>

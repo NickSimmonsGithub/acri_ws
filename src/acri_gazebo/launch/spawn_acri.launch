@@ -9,5 +9,6 @@
         <arg name="yaw" value="0" />
         <arg name="sdf_robot_file" value="$(find acri_description)/sdf/acri_model/model.sdf" />
     </include>
+        <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find acri_description)/urdf/acri_camera_assembly.urdf.xacro' use_nominal_extrinsics:=true add_plug:=true" />
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
 </launch>
