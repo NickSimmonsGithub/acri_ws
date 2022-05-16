@@ -163,6 +163,7 @@ include_directories(
 catkin_install_python(PROGRAMS
   scripts/enable_STM32.py
   scripts/keyboard_control.py
+  scripts/controller.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
