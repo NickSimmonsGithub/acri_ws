@@ -1222,6 +1222,6 @@
       <right_track>right_track</right_track>
       <track_mu>2</track_mu>
       <track_mu2>0.5</track_mu2>
-    </plugin>
+    </plugin>    
   </model> 
 </sdf>
