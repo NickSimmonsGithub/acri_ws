@@ -217,13 +217,15 @@ int main(int argc, char** argv)
     ros::NodeHandle nh;
 
     // Initialize ROS
-    ROS_ASSERT(argc == 2);
+    ROS_ASSERT(argc == 4);
     fs::path package(argv[1]);
+    fs::path map_path(argv[2]);
+    fs::path model_path(argv[3]);
     ros::param::get("~script_filename", meshlabscript_filename);
-    ros::param::get("~map_path", map_path);
-    ros::param::get("~model_path", model_path);
     ros::param::get("~target_resolution", target_resolution);
     ros::param::get("~filter_z", filter_z);
+
+    
 
     fs::path map_abs = package / fs::path(map_path);
     ROS_INFO(map_abs.string().c_str());

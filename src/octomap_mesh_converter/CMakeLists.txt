@@ -123,12 +123,12 @@ target_link_libraries(octomap_to_mesh
 # all install targets should use catkin DESTINATION variables
 # See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
 
-## Mark executable scripts (Python etc.) for installation
-## in contrast to setup.py, you can choose the destination
-# install(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+# Mark executable python scripts for installation
+catkin_install_python(PROGRAMS
+  scripts/octomap_to_SDF.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
 
 ## Mark executables and/or libraries for installation
 # install(TARGETS octomap_mesh_converter octomap_mesh_converter_node
