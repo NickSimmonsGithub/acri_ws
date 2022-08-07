@@ -1,0 +1,4 @@
+ADD TO SIMULATION INSTALLATION INSTRUCTIONS:
+
+#. Install meshlab for octomap to mesh conversion.
+sudo apt-get install meshlab
