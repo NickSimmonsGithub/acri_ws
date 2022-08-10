@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+    <world name="default">
+        <!--
+            A demo world generated using the octomap_to_SDF python script of the acri_ws.
+        -->
+
+        <include>
+            <uri>model://sun</uri>
+        </include>
+
+        <include>
+            <uri>model://ground_plane</uri>
+        </include>
+    </world>
+</sdf>
