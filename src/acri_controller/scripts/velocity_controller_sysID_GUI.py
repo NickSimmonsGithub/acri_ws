@@ -7,7 +7,7 @@ from readline import insert_text
 import rospy
 import tkinter as tk
 import threading
-from acri_gazebo.msg import track_velocity
+from acri_controller.msg import from_NUC
 from std_msgs.msg import String
 
 def isfloat(string) -> bool:
@@ -22,18 +22,15 @@ class VelocitySysIDGUI():
     # main tkinter window.
     root = tk.Tk()
 
-    # healthy status ROS publisher.
-    statusPub = rospy.Publisher('/acri_hw/status', String, queue_size=1)
+    # from_NUC publisher.
+    fromNUCPub = rospy.Publisher('acri_hw/from_NUC', from_NUC, queue_size=1)
 
-    # velocity ROS publisher.
-    velocityPub = rospy.Publisher('/acri_hw/tread_velocity_reference', track_velocity, queue_size=1)
-
-    # velocity ROS msg.
-    trackVelocity = track_velocity()
+    # from_NUC ROS msg.
+    fromNUC = from_NUC()
     experimentVelocity = 0.0
 
-    # velocity publisher operating frequency.
-    velocityPubTimerFreq = 25.0       # Hz
+    # from_NUC operating frequency.
+    fromNUCOperatingFreq = 25.0       # Hz
 
     # GUI Variables.
     maxVelReference = ""
@@ -44,6 +41,7 @@ class VelocitySysIDGUI():
     velTimerTime = 0.0
     velTimerMaxVelRef = 0.0
 
+    isROSEnabled = 0
     velPublisherEnabled = False
 
     # flag which indicates if the estop has been pressed.
@@ -139,11 +137,8 @@ class VelocitySysIDGUI():
         # Bind the user's keys to their respective events.
         self.root.bind('<Return>', self.estopEventCallback)
 
-        # Initalise the HEALTHY timer.
-        self.timer = threading.Timer(0.1, self.timerCallback)
-
         # Initialise the velocity publisher timer.
-        self.velocityTimer = threading.Timer(1.0/self.velocityPubTimerFreq, self.velocityTimerCallback)
+        self.velocityTimer = threading.Timer(1.0/self.fromNUCOperatingFreq, self.velocityTimerCallback)
 
         # Initialise the ROS node.
         rospy.init_node('velocity_sysID', anonymous=False)
@@ -167,13 +162,16 @@ class VelocitySysIDGUI():
 
     # Updates the tread velocity and publishes it to the tank.
     def updateTreadVel(self, velRef):
-        if(velRef > 1.0):
-            velRef = 1.0
-        elif(velRef < -1.0):
-            velRef = -1.0
-        self.trackVelocity.left = velRef
-        self.trackVelocity.right = velRef
-        self.velocityPub.publish(self.trackVelocity)
+        if(self.estopPressed == False):
+            if(velRef > 1.0):
+                velRef = 1.0
+            elif(velRef < -1.0):
+                velRef = -1.0
+            self.fromNUC.left_tread = velRef
+            self.fromNUC.right_tread = velRef
+            self.fromNUC.isROSControlEnabled = 1
+            self.fromNUC.isROSEnabled = self.isROSEnabled
+            self.fromNUCPub.publish(self.fromNUC)
 
     # Define the event callbacks for each button's corresponding keyboard command.
     def estopEventCallback(self, event):
@@ -187,8 +185,13 @@ class VelocitySysIDGUI():
                 text='TANK IS ACTIVE. STAY CLEAR!'
             )
             self.estopPressed = False
-            if(self.timer.is_alive() == False):
-                self.timerCallback()
+            self.isROSEnabled = 1
+            self.fromNUC.left_tread = 0.0
+            self.fromNUC.right_tread = 0.0
+            self.fromNUC.isROSEnabled = 1
+            self.fromNUC.isROSControlEnabled = 0
+            self.fromNUCPub.publish(self.fromNUC)
+
         else:
             self.estop.config(
                 bg='red',
@@ -196,10 +199,13 @@ class VelocitySysIDGUI():
             )
             self.updateTreadVel(0.0)
             self.estopPressed = True
-            if(self.timer.is_alive() == True):
-                self.timer.cancel()
-            if(self.velocityTimer.is_alive() == True):
-                self.velocityTimer.cancel()
+            self.isROSEnabled = 0
+            self.fromNUC.left_tread = 0.0
+            self.fromNUC.right_tread = 0.0
+            self.fromNUC.isROSEnabled = 0
+            self.fromNUC.isROSControlEnabled = 0
+            self.fromNUCPub.publish(self.fromNUC)
+
 
     # Callback function for "START" button.
     def startButtonCallback(self):
@@ -221,26 +227,21 @@ class VelocitySysIDGUI():
     # Callback function for velocity publisher.
     def velocityTimerCallback(self):        
         # Calculate the next velocity and publish it.
-        self.experimentVelocity += self.velTimerMaxVelRef / (self.velTimerTime * self.velocityPubTimerFreq)
+        self.experimentVelocity += self.velTimerMaxVelRef / (self.velTimerTime * self.fromNUCOperatingFreq)
         self.updateTreadVel(self.experimentVelocity)
         # If the velocity is not at its largest value, restart the timer.
         if(self.experimentVelocity <= self.velTimerMaxVelRef):
-            self.velocityTimer = threading.Timer(1.0/self.velocityPubTimerFreq, self.velocityTimerCallback)
+            self.velocityTimer = threading.Timer(1.0/self.fromNUCOperatingFreq, self.velocityTimerCallback)
             self.velocityTimer.start()
         else:
-            self.updateTreadVel(0.0)
+            self.fromNUC.left_tread = 0.0
+            self.fromNUC.right_tread = 0.0
+            self.fromNUC.isROSControlEnabled = 0
+            self.fromNUC.isROSEnabled = 1
+            self.fromNUCPub.publish(self.fromNUC)
             self.velPublisherEnabled = False
             if(self.velocityTimer.is_alive() == True):
                 self.velocityTimer.cancel()
-
-    # Callback function for estop publisher.
-    def timerCallback(self):
-        # publish the message "HEALTHY" to the status topic.
-        self.statusPub.publish("HEALTHY")
-        # Restart the timer.
-        self.timer = threading.Timer(0.1, self.timerCallback)
-        self.timer.start()
-
 
 if __name__ == '__main__':
     try:

@@ -13,8 +13,10 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   message_generation
   cmake_modules
+  qpOASES
 )
 
+add_definitions(-std=c99)
 
 find_package(Eigen3 REQUIRED)
 include_directories(${EIGEN3_INCLUDE_DIR})
@@ -56,12 +58,15 @@ include_directories(${EIGEN3_INCLUDE_DIR})
 add_message_files(
   FILES
   State.msg
+  to_NUC.msg
+  from_NUC.msg
 )
 
 ## Generate services in the 'srv' folder
 add_service_files(
   FILES
   System.srv
+  Control.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -127,7 +132,10 @@ include_directories(
 
 add_executable(ControlSystemServices
                src/ControlSystemServices.cpp
-               src/ControlSystem.cpp)
+               src/qpas_sub_noblas.c
+               src/ControlSystem.cpp
+               src/riccati_solver.cpp
+               )
 
 add_dependencies(ControlSystemServices ${catkin_EXPORTED_TARGETS})
 target_link_libraries(ControlSystemServices ${catkin_LIBRARIES})
@@ -168,6 +176,7 @@ target_link_libraries(ControlSystemServices ${catkin_LIBRARIES})
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
   scripts/velocity_controller_sysID_GUI.py
+  scripts/MomentOfInertia_sysID.py
   scripts/plotSystem.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

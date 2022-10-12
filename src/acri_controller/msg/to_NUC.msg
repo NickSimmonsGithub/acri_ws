@@ -1,0 +1,7 @@
+uint8 estopState
+uint8 remoteArmedState
+uint16 tankState
+uint16 leftTreadState
+uint16 rightTreadState
+float64 leftVelRef
+float64 rightVelRef

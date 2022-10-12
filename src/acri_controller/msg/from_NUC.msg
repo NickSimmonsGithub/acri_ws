@@ -1,0 +1,4 @@
+float64 left_tread
+float64 right_tread
+uint8 isROSEnabled
+uint8 isROSControlEnabled

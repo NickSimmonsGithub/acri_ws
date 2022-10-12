@@ -11,9 +11,11 @@
 #include <string>
 #include <Eigen/Core>
 #include <boost/numeric/odeint.hpp>
+#include "qpas_sub_noblas.h"
 #include "ros/ros.h"
 #include "acri_controller/State.h"
 #include "acri_controller/System.h"
+#include "acri_controller/Control.h"
 
 namespace odeint = boost::numeric::odeint;
 
@@ -55,13 +57,23 @@ class ControlSystem
 
         // ### CONTROLLER PUBLIC INTERFACE ### 
 
-        void setVelocity(double _v);
-        // Precondition:  None.
-        // Postcondition: The tank velocity member variable is updated.
-
         void initialiseMPC();
         // Precondition:  None.
-        // Postcondition: 
+        // Postcondition: All matrices required to run MPC function are initialised.
+
+        void setReference(double theta_ref);
+        // Precondition:  None.
+        // Postcondition: The controller reference point is set.
+
+        // double calculateControl(bool _isObservedValueUsed);
+        // Precondition:  InitialiseMPC has been run.
+        // Postcondition: The optimal control is returned and the integral action term is updated.
+
+        bool calculateControlService(acri_controller::Control::Request& req, acri_controller::Control::Response& res);
+        // Precondition:  InitialiseMPC has been run.
+        // Postcondition:  
+
+        
 
 
         // ### OBSERVER PUBLIC INTERFACE ###
@@ -92,6 +104,7 @@ class ControlSystem
 
 
 
+
     private:
 
         // System parameters.
@@ -108,6 +121,9 @@ class ControlSystem
         // Equillibrium point.
         Eigen::Vector3d x_bar;
 
+        // Reference point.
+        Eigen::Vector3d x_ref;
+
         // Continuous time linearised system matrices.
         Eigen::Matrix3d A;                                  // Jacobian with respect to state.
         Eigen::Vector3d B;                                  // Jacobian with respect to the input.
@@ -121,26 +137,24 @@ class ControlSystem
         double D = 0;                                       // Maps input vector to output vector.
 
         // timestep size.     
-        double dt = 0.1;
+        double dt = 0.01;
 
         // Input.
+        double u = 0;
         double v = 0;
 
         // MPC Variables.
-        Eigen::Matrix4d A_int;                              // A matrix, augmented for integral action.
-        Eigen::Vector4d B_int;                              // B matrix, augmented for integral action.
-        Eigen::Matrix4d Q;                                  // Q matrix.
-        Eigen::Matrix<double, 1, 1> R;                      // R matrix. 
-        int N_horizon;                                      // MPC Horizon.
-        Eigen::Vector4d N;                                  // N term.
-        Eigen::Matrix4d Ad;                                 // dlqr_cost output variable.
-        Eigen::Vector4d Bd;                                 // dlqr_cost output variable.
-        Eigen::Matrix4d Qd;                                 // dlqr_cost output variable.
-        Eigen::Matrix<double, 1, 1> Rd;                     // dlqr_cost output variable.
-        Eigen::Vector4d Nd;                                 // dlqr_cost output variable.
-        Eigen::Matrix4d Q_f;                                // DARE output variable.
-        Eigen::Vector3d N_x;                                // State feedforward term.
-        Eigen::Matrix<double, 1, 1> N_u;                    // Input feedforward term.
+        Eigen::Matrix4d A_int;                                              // A matrix, augmented for integral action.
+        Eigen::Vector4d B_int;                                              // B matrix, augmented for integral action.
+        Eigen::Vector4d N;
+        Eigen::Matrix4d Ad;
+        Eigen::Vector4d Bd;
+        Eigen::Matrix4d Qd;
+        Eigen::Matrix<double, 1, 1> Rd;                                     // dlqr_cost output variable.
+        Eigen::Vector4d Nd;                                                 // dlqr_cost output variable.
+        Eigen::MatrixXd Q_f;                                                // DARE output variable.
+        Eigen::Vector3d N_x;                                                // State feedforward term.
+        Eigen::Matrix<double, 1, 1> N_u;                                    // Input feedforward term.
         Eigen::MatrixXd A_MPC;
         Eigen::MatrixXd B_MPC;
         Eigen::MatrixXd Q_MPC;
@@ -148,19 +162,64 @@ class ControlSystem
         Eigen::MatrixXd N_MPC;
         Eigen::MatrixXd H_MPC;
         Eigen::MatrixXd fbar_MPC;
+        Eigen::MatrixXd f_MPC;
+        Eigen::MatrixXd CONST_INEQUAL_A;
+        Eigen::VectorXd DeltaUMin;
+        Eigen::VectorXd DeltaUMax;
+        Eigen::VectorXd CONST_INEQUAL_B;
+        Eigen::VectorXd CONST_BOUND_UPPER;
+        Eigen::VectorXd CONST_BOUND_LOWER;
 
+
+        // MPC Tuning Parameters.
+        const static int N_horizon = 50;                                    // MPC Horizon.
+        Eigen::Matrix4d Q;                                                  // Q matrix.
+        Eigen::Matrix<double, 1, 1> R;                                      // R matrix.
+        double delta_u_max;                                                 // Upper slew rate constraint.
+        double delta_u_min;                                                 // Lower slew rate constraint.
+        double u_max;                                                       // Upper input constraint.
+        double u_min;                                                       // Lower input constraint.
+
+        // qpas_sub_noblas constants.
+        const static int CTRL_N_INPUT = 1;
+        const static int CTRL_N_STATE = 4;
+        const static int CTRL_N_OUTPUT = 1;
+        const static int CTRL_N_HORIZON = N_horizon;
+        const static int CTRL_N_EQ_CONST = 0;
+        const static int CTRL_N_INEQ_CONST = 2 * N_horizon;
+        const static int CTRL_N_LB_CONST = N_horizon;
+        const static int CTRL_N_UB_CONST = N_horizon;
+
+        // qpas_sub_noblas c-style arrays.
+        double ctrl_H[CTRL_N_HORIZON * CTRL_N_HORIZON];
+        double ctrl_A[CTRL_N_INEQ_CONST * CTRL_N_HORIZON];
+        double ctrl_b[CTRL_N_INEQ_CONST];
+        double ctrl_xl[CTRL_N_LB_CONST];
+        double ctrl_xu[CTRL_N_UB_CONST];
+        double ctrl_Ustar[CTRL_N_HORIZON*CTRL_N_INPUT];
+
+        // Integral Action Terms.
+        Eigen::Matrix<double, 1, 1> z;
+        Eigen::Matrix<double, 1, 4> Az;
+        Eigen::Matrix<double, 1, 1> Bz;
 
         // ### CONTROLLER PRIVATE INTERFACE ###
 
         void dlqr_cost();
         // Precondition:  
         // Postcondition: 
-
+        
         void dare();
         // Precondition:  
         // Postcondition: 
 
         Eigen::MatrixXd power(Eigen::MatrixXd in, int i, int j);
+        // Precondition:  
+        // Postcondition: 
+
+        void setVelocity(double _v);
+        // Precondition:  None.
+        // Postcondition: The tank velocity member variable is updated.
 
 
         // ### STATE DYNAMICS PRIVATE INTERFACE ###
@@ -169,9 +228,5 @@ class ControlSystem
 
 
 };
-
-
-
-
 
 #endif

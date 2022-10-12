@@ -19,6 +19,9 @@ int main(int argc, char **argv)
     // Initialise the UpdateState service.
     ros::ServiceServer updateStateService = nh.advertiseService("update_state", &ControlSystem::updateStateService, &controlSystem);
 
+    // Initialise the CalculateControl service.
+    ros::ServiceServer calculateControlService = nh.advertiseService("calculate_control", &ControlSystem::calculateControlService, &controlSystem);
+
     // Spin the ros node.
     ros::spin();
 

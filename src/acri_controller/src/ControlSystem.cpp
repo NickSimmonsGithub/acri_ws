@@ -16,6 +16,8 @@
 #include "ros/ros.h"
 #include "acri_controller/State.h"
 #include "acri_controller/System.h"
+#include "acri_controller/Control.h"
+#include "riccati_solver.h"
 
 namespace odeint = boost::numeric::odeint;
 
@@ -59,7 +61,7 @@ ControlSystem::ControlSystem(double _v)
 ControlSystem::ControlSystem(Eigen::Vector3d & x_init, double theta_bar)
 {
     // Calculate the remaining equillibrium point members from theta_bar.
-    xbarCalc(theta_bar);
+    xbarCalc(0);
 
     // Calculate A, B, C, G and H.
     lineariseSystem();
@@ -68,6 +70,10 @@ ControlSystem::ControlSystem(Eigen::Vector3d & x_init, double theta_bar)
     x     = x_init;
     x_obs = x_init;
 
+    // Set the initial reference point at theta = 0.
+    setReference(-0.2);
+
+    // Construct all MPC matrices.
     initialiseMPC();
 }
 
@@ -138,20 +144,31 @@ void ControlSystem::lineariseSystem()
     A_dt = dt * A;
     G = A_dt.exp();
 
-    std::cout << "G matrix: " << std::endl << G << std::endl;
-
 }      
 
 
 // ### CONTROLLER PUBLIC INTERFACE ###
 
+void ControlSystem::setReference(double theta_ref)
+{
+    double z_ref = -d * std::tan(theta_ref);                // Calculate z_ref from theta_ref.
+    x_ref << theta_ref,                                     // Construct the reference point vector.
+                     0,
+                 z_ref;
+}
+
 void ControlSystem::initialiseMPC()
 {
     // Populate tuning parameters.
-    double q1 = 1e7;
-    double q2 = 1e-8;
-    double q3 = 1e3;
-    double q4 = 1e6;
+    double q1   =  1e7;
+    double q2   =  1e-8;
+    double q3   =  1e3;
+    double q4   =  1e6;
+    delta_u_max =  0.03;
+    delta_u_min = -0.03;
+    u_max       =  1.2;
+    u_min       = -1.2;
+
 
     Q = Eigen::MatrixXd::Zero(4, 4);
     Q(0, 0) = q1;
@@ -161,25 +178,26 @@ void ControlSystem::initialiseMPC()
 
     R << 1.0;
 
-    N_horizon = 50;
-
     // Augment A and B matrices for integral action.
     A_int << A, Eigen::VectorXd::Zero(3),
              C,                        0;
     B_int << B,
              D;
-    
+
     // Define N for discretisation.
     N << 0,
          0,
          0,
          0;
 
+    // Initialise integral action term.
+    z << 0;
+
     // Discretise system.
     dlqr_cost();
 
-    // Compute terminal cost. TODO: Ask Joel about this gain term.
-    dare();
+    // Compute terminal cost. 
+    solveRiccatiIterationD(Ad, Bd, Qd, Rd, Q_f, 1e-12, 100000);
 
     // Populate A_MPC, B_MPC, Q_MPC, R_MPC and N_MPC terms.
     int nx = A_int.cols();
@@ -209,11 +227,131 @@ void ControlSystem::initialiseMPC()
     // Populate H_MPC and fbar_MPC terms.
     H_MPC    = 2.0 * (B_MPC.transpose()*Q_MPC*B_MPC + B_MPC.transpose()*N_MPC + N_MPC.transpose()*B_MPC + R_MPC);
     H_MPC    = (H_MPC + H_MPC.transpose()) / 2.0;
-    std::cout << "H_MPC: " << std::endl << H_MPC << std::endl;
+    // H_MPC.transposeInPlace();
+    // std::cout << "H_MPC: " << std::endl << H_MPC << std::endl;
 
     fbar_MPC = 2.0 * (B_MPC.transpose()*Q_MPC + N_MPC.transpose())*A_MPC;
-    std::cout << "fbar_MPC: " << std::endl << fbar_MPC << std::endl;
+    // std::cout << "fbar_MPC: " << std::endl << fbar_MPC << std::endl;
 
+    // Populate the CONST_INEQUAL_A Term.
+    int stepSize = 1;
+    Eigen::MatrixXd DiagonalSubTerm = Eigen::MatrixXd::Zero(N_horizon, N_horizon);
+    for(int i = 0; i < N_horizon - stepSize; i++)
+    {
+        DiagonalSubTerm(i + stepSize, i) = 1;
+    }
+    Eigen::MatrixXd W;
+    W = Eigen::MatrixXd::Identity(N_horizon, N_horizon) - DiagonalSubTerm;
+    CONST_INEQUAL_A.resize(2*N_horizon, N_horizon);
+    CONST_INEQUAL_A <<  W,
+                       -W;
+    CONST_INEQUAL_A.transposeInPlace();
+
+    // Populate the DeltaUMin and DeltaUMax matrices.
+    DeltaUMax = Eigen::VectorXd::Ones(N_horizon) * delta_u_max;                 // Assumes u0 = 0.
+    DeltaUMin = Eigen::VectorXd::Ones(N_horizon) * delta_u_min;
+    CONST_INEQUAL_B.resize(2*N_horizon);
+    CONST_INEQUAL_B <<  DeltaUMax,
+                       -DeltaUMin;
+
+    // Populate upper and lower bound matrices.
+    CONST_BOUND_UPPER = Eigen::VectorXd::Ones(N_horizon) * u_max;
+    CONST_BOUND_LOWER = Eigen::VectorXd::Ones(N_horizon) * u_min;
+
+    // Populate all c-style matrices for qpas_sub_noblas.
+    std::cout << "H: ";
+    for(int i = 0; i < CTRL_N_HORIZON; i++)
+    {
+        std::cout << std::endl;
+        for(int j = 0; j < CTRL_N_HORIZON; j++)
+        {
+            ctrl_H[CTRL_N_HORIZON*i + j] = H_MPC(i, j);
+            std::cout << ctrl_H[CTRL_N_HORIZON*i + j] << ", ";
+        }
+    }
+
+    std::cout << "A: ";
+    for(int i = 0; i < CTRL_N_HORIZON; i++)
+    {
+        std::cout << std::endl;
+        for(int j = 0; j < CTRL_N_INEQ_CONST; j++)
+        {
+            ctrl_A[CTRL_N_INEQ_CONST*i + j] = CONST_INEQUAL_A(i, j);
+            std::cout << ctrl_A[CTRL_N_INEQ_CONST*i + j] << ", ";
+        }
+    }
+
+    std::cout << "b: " << std::endl;
+    for(int i = 0; i < CTRL_N_INEQ_CONST; i++)
+    {
+        ctrl_b[i] = CONST_INEQUAL_B(i);
+        std::cout << ctrl_b[i] << std::endl;
+    }
+
+    std::cout << "xl: " << std::endl;
+    for(int i = 0; i < CTRL_N_LB_CONST; i++)
+    {
+        ctrl_xl[i] = CONST_BOUND_LOWER(i);
+        std::cout << ctrl_xl[i] << std::endl;
+    }
+
+    std::cout << "xu: " << std::endl;
+    for(int i = 0; i < CTRL_N_UB_CONST; i++)
+    {
+        ctrl_xu[i] = CONST_BOUND_UPPER(i);
+        std::cout << ctrl_xu[i] << std::endl;
+    }
+
+    for(int i = 0; i < CTRL_N_HORIZON; i++)
+    {
+        ctrl_Ustar[i] = 0;
+    }
+
+    // Calculate Integral Action Matrices.
+    Az << dt * C, 1.0;
+    Bz << dt * D;
+
+    
+}
+
+bool ControlSystem::calculateControlService(acri_controller::Control::Request& req, acri_controller::Control::Response& res)
+{
+    Eigen::Vector3d x;
+    x << req.x_in.theta,
+         req.x_in.P_theta,
+         req.x_in.z;
+
+    // compute f_MPC as a c-style array.
+    double ctrl_f[CTRL_N_HORIZON];
+    double ctrl_lm[CTRL_N_EQ_CONST + CTRL_N_INEQ_CONST + CTRL_N_LB_CONST + CTRL_N_UB_CONST];
+    for(int i = 0; i < N_horizon; i++)
+    {
+        double firstTerm  = fbar_MPC(i, 0)*(x(0) - x_ref(0));
+        double secondTerm = fbar_MPC(i, 1)*(x(1) - x_ref(1));
+        double thirdTerm  = fbar_MPC(i, 2)*(x(2) - x_ref(2));
+        double fourthTerm = fbar_MPC(i, 3)*z(0, 0);
+        ctrl_f[i] = firstTerm + secondTerm + thirdTerm + fourthTerm;
+    }
+
+    ctrl_b[0] = ctrl_Ustar[0] + delta_u_max;
+    ctrl_b[CTRL_N_HORIZON] = -ctrl_Ustar[0] - delta_u_min;
+
+    // other qpas_sub_noblas variables.
+    int numits, numadd, numdrop;
+
+    qpas_sub_noblas(CTRL_N_HORIZON, CTRL_N_EQ_CONST, CTRL_N_INEQ_CONST, CTRL_N_LB_CONST, CTRL_N_UB_CONST, ctrl_H, ctrl_f, ctrl_A, ctrl_b, ctrl_xl, ctrl_xu, ctrl_Ustar, ctrl_lm, 0, &numits, &numadd, &numdrop);
+    res.v = ctrl_Ustar[0];
+
+    // Update the integral action state.
+    Eigen::Vector4d integralActionTerm;
+    integralActionTerm << x(0) - x_ref(0),
+                          x(1) - x_ref(1),
+                          x(2) - x_ref(2),
+                          z;
+
+    z = Az * integralActionTerm;                                                // Neglected Bz term to remove unnecessary computation.    
+
+    return true;      
 }
 
 Eigen::MatrixXd ControlSystem::power(Eigen::MatrixXd in, int i, int j)
@@ -289,48 +427,6 @@ void ControlSystem::dlqr_cost()
     Nd =    QQ.block( 0, Nx, Nx, Nu);
 }
 
-void ControlSystem::dare()                          
-{
-    // Initialise recursive parameters.
-    /*
-    Eigen::MatrixXd Ak = Ad;
-    Eigen::MatrixXd Gk = Bd * Rd.colPivHouseholderQr().solve(Bd.transpose());
-    Eigen::MatrixXd Hk = Qd;
-    Eigen::MatrixXd invTerm = Eigen::MatrixXd::Identity(Bd.rows(), Bd.rows()) - Gk*Hk;
-    Eigen::MatrixXd Ak_plus1 = Ak*invTerm.colPivHouseholderQr().solve(Ak);
-    Eigen::MatrixXd Gk_plus1 = Gk + Ak*invTerm.colPivHouseholderQr().solve(Gk)*Ak.transpose();
-    Eigen::MatrixXd Hk_plus1 = Hk + Ak.transpose()*Hk*invTerm.colPivHouseholderQr().solve(Ak);
-    Eigen::MatrixXd Hk_plus1_minus_Hk = Hk_plus1 - Hk;
-    double epsilon = 0.000001;
-    while(Hk_plus1_minus_Hk.norm() / Hk_plus1.norm() > epsilon)
-    {
-        Ak = Ak_plus1;
-        Gk = Gk_plus1;
-        Hk = Hk_plus1;
-        invTerm = Eigen::MatrixXd::Identity(Bd.rows(), Bd.rows()) - Gk*Hk;
-        Ak_plus1 = Ak*invTerm.colPivHouseholderQr().solve(Ak);
-        Gk_plus1 = Gk + Ak*invTerm.colPivHouseholderQr().solve(Gk)*Ak.transpose();
-        Hk_plus1 = Hk + Ak.transpose()*Hk*invTerm.colPivHouseholderQr().solve(Ak);
-        Hk_plus1_minus_Hk = Hk_plus1 - Hk;
-    }
-    */
-    #define EPS 0.000001
-
-    Eigen::MatrixXd At = Ad.transpose();
-    Eigen::MatrixXd Bt = Bd.transpose();
-    Eigen::MatrixXd X = Qd;
-
-    double d = EPS;
-    for (std::size_t ii=0; ii < 100000 && d >= EPS; ++ii)
-    {
-        Eigen::MatrixXd Xp = X;
-        
-        X = Q + At*X*Ad - At*X*Bd*(Bt*X*Bd+Rd).inverse()*Bt*X*Ad;
-        d = (X - Xp).array().abs().sum();
-    }
-    
-    Q_f = X;
-}
 
 // ### STATE DYNAMICS PUBLIC INTERFACE ###
 
@@ -341,7 +437,8 @@ bool ControlSystem::updateStateService(acri_controller::System::Request& req, ac
     x(0) = x_in.theta;
     x(1) = x_in.P_theta;
     x(2) = x_in.z;
-    setVelocity(req.v);
+    double v = req.v;
+    setVelocity(v);
 
     // Run the runge-kutta solver.
     updateState();
