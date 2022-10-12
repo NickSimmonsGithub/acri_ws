@@ -13,7 +13,6 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   message_generation
   cmake_modules
-  qpOASES
 )
 
 add_definitions(-std=c99)
