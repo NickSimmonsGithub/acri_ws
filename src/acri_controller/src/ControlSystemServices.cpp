@@ -14,13 +14,16 @@ int main(int argc, char **argv)
               0.0,
               0.0;
     double theta_bar = 0;
-    ControlSystem controlSystem(x_init, theta_bar);
+    ControlSystem controlSystem(argc, argv, x_init, theta_bar);
 
     // Initialise the UpdateState service.
     ros::ServiceServer updateStateService = nh.advertiseService("update_state", &ControlSystem::updateStateService, &controlSystem);
 
     // Initialise the CalculateControl service.
     ros::ServiceServer calculateControlService = nh.advertiseService("calculate_control", &ControlSystem::calculateControlService, &controlSystem);
+
+    // Initialise the UpdateObserver service.
+    ros::ServiceServer updateObserverService = nh.advertiseService("update_observer", &ControlSystem::updateObserverService, &controlSystem);
 
     // Spin the ros node.
     ros::spin();
