@@ -5,8 +5,10 @@ import tkinter as tk
 import threading
 import rospy
 from acri_controller.msg import from_NUC
-from std_msgs.msg import String
+from sensor_msgs.msg import Imu
 import csv
+import numpy as np
+from tf.transformations import euler_from_quaternion
 
 class MomentOfInertiaSysID():
 
@@ -26,6 +28,9 @@ class MomentOfInertiaSysID():
     experimentIsRunning = True
 
     def __init__(self):
+
+        # Initialise the ROS node.
+        rospy.init_node("momentOfInertiaSysID")
 
         # Initialise all UI elements.
         self.estop = tk.Button(
@@ -55,8 +60,37 @@ class MomentOfInertiaSysID():
         self.root.bind('<Return>', self.estopEventCallback)
         self.root.bind('j', self.experimentEventCallback)
 
+        # Imu topic subscriber.
+        ImuSUB = rospy.Subscriber('/an_device/Imu', Imu, self.ImuSubCallback)
+
         # Initialise UI.
         self.root.mainloop()
+
+    # Handle the IMU subscriber callback.
+    def ImuSubCallback(self, data):
+
+        # If the experiment is enabled, enable the logic of the Imu Callback.
+        if((self.estopPressed == False) & (self.experimentIsRunning == True)):
+
+            # Convert angles from quaternions to euler.
+            orientation_list = [data.orientation.x, data.orientation.y, data.orientation.z, data.orientation.w]
+            (roll, pitch, yaw) = euler_from_quaternion (orientation_list)
+
+            # Correct for the orientation of the sensor.
+            roll = roll - np.pi
+
+            # Correct for lack of squareness in the sensor mount.
+            roll = roll + 0.02
+
+            # Correct for rollover.
+            if((roll < -np.pi) & (roll >= -2*np.pi)):
+                roll = roll + 2*np.pi
+
+            # Print the relevant measurements.
+            rateOfRoll = data.angular_velocity.x
+            print_string = "roll: " + "{:.5f}".format(roll) + ", rate of roll: " + "{:.5f}".format(rateOfRoll)
+            print(print_string)
+
 
 
     # Handles estop logic.
@@ -73,6 +107,11 @@ class MomentOfInertiaSysID():
                 text='TANK IS INACTIVE'
             )
             self.estopPressed = True
+            self.fromNUC.isROSControlEnabled = 0
+            self.fromNUC.isROSEnabled = 0
+            self.fromNUC.left_tread = 0
+            self.fromNUC.right_tread = 0
+            self.fromNUCPub.publish(self.fromNUC)
 
     # Define the event callbacks for each button's corresponding keyboard command.
     def estopEventCallback(self, event):

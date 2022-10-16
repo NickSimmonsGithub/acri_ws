@@ -1,0 +1,19 @@
+float64 G_00
+float64 G_01
+float64 G_02
+float64 G_10
+float64 G_11
+float64 G_12
+float64 G_20
+float64 G_21
+float64 G_22
+float64 C_0
+float64 C_1
+float64 C_2
+float64 pole1
+float64 pole2
+float64 pole3
+---
+float64 Lc_0
+float64 Lc_1
+float64 Lc_2

@@ -17,6 +17,7 @@
 #include "acri_controller/State.h"
 #include "acri_controller/System.h"
 #include "acri_controller/Control.h"
+#include "acri_controller/ObserverInit.h"
 #include "riccati_solver.h"
 
 namespace odeint = boost::numeric::odeint;
@@ -58,8 +59,11 @@ ControlSystem::ControlSystem(double _v)
     v = _v;
 }
 
-ControlSystem::ControlSystem(Eigen::Vector3d & x_init, double theta_bar)
+ControlSystem::ControlSystem(int argc, char** argv, Eigen::Vector3d & x_init, double theta_bar)
 {
+
+    ros::init(argc, argv, "controlSystem");
+
     // Calculate the remaining equillibrium point members from theta_bar.
     xbarCalc(0);
 
@@ -75,10 +79,13 @@ ControlSystem::ControlSystem(Eigen::Vector3d & x_init, double theta_bar)
 
     // Construct all MPC matrices.
     initialiseMPC();
+
+    // Construct the linear observer.
+    InitialiseObserver();
 }
 
 
-ControlSystem::ControlSystem(Eigen::Vector3d & x_init, Eigen::Vector3d & x_obs_init, double theta_bar)
+ControlSystem::ControlSystem(int argc, char** argv, Eigen::Vector3d & x_init, Eigen::Vector3d & x_obs_init, double theta_bar)
 {
 
 }
@@ -139,11 +146,6 @@ void ControlSystem::lineariseSystem()
     // Calculate C.
     C << 1, 0, 0;
 
-    // Calculate G.
-    Eigen::Matrix3d A_dt(3, 3);
-    A_dt = dt * A;
-    G = A_dt.exp();
-
 }      
 
 
@@ -195,6 +197,9 @@ void ControlSystem::initialiseMPC()
 
     // Discretise system.
     dlqr_cost();
+
+    std::cout << "Ad: " << std::endl << Ad << std::endl;
+    std::cout << "Bd: " << std::endl << Bd << std::endl;
 
     // Compute terminal cost. 
     solveRiccatiIterationD(Ad, Bd, Qd, Rd, Q_f, 1e-12, 100000);
@@ -427,6 +432,87 @@ void ControlSystem::dlqr_cost()
     Nd =    QQ.block( 0, Nx, Nx, Nu);
 }
 
+// ### OBSERVER PUBLIC INTERFACE ###
+
+bool ControlSystem::updateObserverService(acri_controller::SystemObs::Request& req, acri_controller::SystemObs::Response& res)
+{
+    // Extract the variables from the req object.
+    acri_controller::State x_in = req.x_in;
+    x_obs(0) = x_in.theta;
+    x_obs(1) = x_in.P_theta;
+    x_obs(2) = x_in.z;
+    double y = req.y;
+    double v = req.v;
+    setVelocity(v);
+
+    // Construct the matrix of measurements of the states.
+    Eigen::Vector3d y_obs;
+    y_obs << y,
+             0,
+             0;
+
+    // Update x_obs.
+    x_obs = (G - Lc*C)*x_obs + H*v + Lc*C*y_obs;
+    
+    // Construct the response object using the update x_obs.
+    res.x_out.theta   = x_obs(0);
+    res.x_out.P_theta = x_obs(1);
+    res.x_out.z       = x_obs(2);
+    
+    return true;
+}
+
+
+// ### OBSERVER PRIVATE INTERFACE ###
+
+void ControlSystem::InitialiseObserver()
+{
+    // Copy the relevant components of Ad and Bd into G and H.
+    G << Ad(0, 0), Ad(0, 1), Ad(0, 2),
+         Ad(1, 0), Ad(1, 1), Ad(1, 2),
+         Ad(2, 0), Ad(2, 1), Ad(2, 2);
+    H << Bd(0),
+         Bd(1),
+         Bd(2);
+
+    // Calculate the 3 observer poles.
+    double pole1 = std::exp(-4 * dt);
+    double pole2 = std::exp(-3 * dt);
+    double pole3 = std::exp(-6 * dt);
+
+    // Calculate Observer Gain.
+    acri_controller::ObserverInit srv;
+    srv.request.G_00  = G(0, 0);
+    srv.request.G_01  = G(0, 1);
+    srv.request.G_02  = G(0, 2);
+    srv.request.G_10  = G(1, 0);
+    srv.request.G_11  = G(1, 1);
+    srv.request.G_12  = G(1, 2);
+    srv.request.G_20  = G(2, 0);
+    srv.request.G_21  = G(2, 1);
+    srv.request.G_22  = G(2, 2);
+    srv.request.C_0   = C(0, 0);
+    srv.request.C_1   = C(0, 1);
+    srv.request.C_2   = C(0, 2);
+    srv.request.pole1 = pole1;
+    srv.request.pole2 = pole2;
+    srv.request.pole3 = pole3;
+    ros::NodeHandle n_obs;
+    ros::ServiceClient client = n_obs.serviceClient<acri_controller::ObserverInit>("calculateObserverGain");
+    if(client.call(srv))
+    {
+        Lc << srv.response.Lc_0,
+              srv.response.Lc_1,
+              srv.response.Lc_2;
+        std::cout << "Lc: " << std::endl << Lc << std::endl;
+        
+    }
+    else
+    {
+        ROS_ERROR("Failed to call service calculateObserverGain");
+    }
+
+}
 
 // ### STATE DYNAMICS PUBLIC INTERFACE ###
 

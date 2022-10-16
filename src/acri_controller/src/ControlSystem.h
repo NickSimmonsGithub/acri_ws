@@ -16,6 +16,7 @@
 #include "acri_controller/State.h"
 #include "acri_controller/System.h"
 #include "acri_controller/Control.h"
+#include "acri_controller/SystemObs.h"
 
 namespace odeint = boost::numeric::odeint;
 
@@ -28,11 +29,11 @@ class ControlSystem
         ControlSystem(double _v);
 
 
-        ControlSystem(Eigen::Vector3d & x_init, double theta_bar = 0);
+        ControlSystem(int argc, char** argv, Eigen::Vector3d & x_init, double theta_bar = 0);
         // Precondition:  None.
         // Postcondition: A new ControlSystem object is created, with x and x_obs initial conditions set to x_init and the equillibrium point set using theta_bar.
 
-        ControlSystem(Eigen::Vector3d & x_init, Eigen::Vector3d & x_obs_init, double theta_bar = 0);
+        ControlSystem(int argc, char** argv, Eigen::Vector3d & x_init, Eigen::Vector3d & x_obs_init, double theta_bar = 0);
         // Precondition:  None.
         // Postcondition: A new ControlSystem object is created, with x and x_obs initial conditions set to x_init and x_obs_init respectively and equillibrium point set using theta_bar.
 
@@ -78,6 +79,8 @@ class ControlSystem
 
         // ### OBSERVER PUBLIC INTERFACE ###
 
+        bool updateObserverService(acri_controller::SystemObs::Request& req, acri_controller::SystemObs::Response& res);
+
         void updateObserverState();
         // Preconditions: x_obs contains a valid state estimate, x_obs(k).
         //                G contains a valid discrete time version of A.
@@ -103,12 +106,10 @@ class ControlSystem
 
 
 
-
-
     private:
 
         // System parameters.
-        double m = 600.0;
+        double m = 540.0;
         double d = 0.45;
         double w = 0.9;
         double g = 9.81;
@@ -128,16 +129,17 @@ class ControlSystem
         Eigen::Matrix3d A;                                  // Jacobian with respect to state.
         Eigen::Vector3d B;                                  // Jacobian with respect to the input.
 
-        // Discrete time linearised system matrices.
+        // Observer matrices.
         Eigen::Matrix3d G;                                  // Discrete time version of A.
         Eigen::Vector3d H;                                  // Discrete time version of B.
+        Eigen::Vector3d Lc;                                 // Observer gain matrix.
 
         // Linearised measurement model matrices.
         Eigen::Matrix<double, 1, 3> C;                      // Maps state vector to output vector.
         double D = 0;                                       // Maps input vector to output vector.
 
         // timestep size.     
-        double dt = 0.01;
+        double dt = 0.025;
 
         // Input.
         double u = 0;
@@ -169,7 +171,6 @@ class ControlSystem
         Eigen::VectorXd CONST_INEQUAL_B;
         Eigen::VectorXd CONST_BOUND_UPPER;
         Eigen::VectorXd CONST_BOUND_LOWER;
-
 
         // MPC Tuning Parameters.
         const static int N_horizon = 50;                                    // MPC Horizon.
@@ -208,7 +209,7 @@ class ControlSystem
         void dlqr_cost();
         // Precondition:  
         // Postcondition: 
-        
+
         void dare();
         // Precondition:  
         // Postcondition: 
@@ -220,6 +221,13 @@ class ControlSystem
         void setVelocity(double _v);
         // Precondition:  None.
         // Postcondition: The tank velocity member variable is updated.
+
+
+        // ### OBSERVER PRIVATE INTERFACE ### 
+
+        void InitialiseObserver();
+        // Precondition:  
+        // Postcondition: 
 
 
         // ### STATE DYNAMICS PRIVATE INTERFACE ###
